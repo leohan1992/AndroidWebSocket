@@ -9,7 +9,7 @@ import android.content.Intent;
  */
 
 public abstract class WebSocketReceiver extends BroadcastReceiver {
-    public static final String INTENT_ACTION_WEBSOCKET = "xyz.leohan.Broadcase.WebSocket";
+    public static final String INTENT_ACTION_WEBSOCKET = "xyz.leohan.Broadcast.WebSocket";
 
     @Override
     public void onReceive(Context context, Intent intent) {
