@@ -1,6 +1,6 @@
 # AndroidWebSocket
-Help to use webSocket in Android
-
+Help to use webSocket in Android  
+based on "org.java-websocket:Java-WebSocket:1.3.4"
 #### dependencies
 
 Maven
