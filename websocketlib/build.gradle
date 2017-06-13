@@ -34,7 +34,7 @@ publish {
     userOrg = 'leohan0830'//bintray.com用户名
     groupId = 'xyz.leohan'//jcenter上的路径
     artifactId = 'AndroidWebSocket'//项目名称
-    publishVersion = '1.0.0'//版本号
+    publishVersion = '1.0.1'//版本号
     desc = 'a library for use WebSocket easily'
     website = 'https://github.com/leohan1992/AndroidWebSocket'
 }

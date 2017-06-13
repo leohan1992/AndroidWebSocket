@@ -9,7 +9,7 @@ Maven
 <dependency>
   <groupId>xyz.leohan</groupId>
   <artifactId>AndroidWebSocket</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <type>pom</type>
 </dependency>
 ````
@@ -17,7 +17,7 @@ Maven
 Gradle
 
 ````
-compile 'xyz.leohan:AndroidWebSocket:1.0.0'
+compile 'xyz.leohan:AndroidWebSocket:1.0.1'
 ````
 
 #### How to Use
