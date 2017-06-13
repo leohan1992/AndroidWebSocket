@@ -39,7 +39,7 @@ public class MyReceiver extends WebSocketReceiver {
  <service android:name="xyz.leohan.websocketlib.WebSocketService" />
  <receiver android:name=".MyReceiver">
     <intent-filter>
-        <action android:name="xyz.leohan.Broadcase.WebSocket" />
+        <action android:name="xyz.leohan.Broadcast.WebSocket" />
      </intent-filter>
  </receiver>
 ````
