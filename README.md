@@ -50,6 +50,6 @@ public class MyReceiver extends WebSocketReceiver {
  //Make sure you called this only once
   new WebSocketAndroidClient.Builder().setUri("ws://192.168.1.1:12345").build(this).init();
 ````
-#### contract me
+#### Contact  me
 
 if you have any trouble in use this lib ,you can send me an e-mail :leo@leohan.xyz
