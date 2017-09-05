@@ -17,7 +17,7 @@ Maven
 Gradle
 
 ````
-compile 'xyz.leohan:AndroidWebSocket:1.0.1'
+compile 'xyz.leohan:AndroidWebSocket:1.1.1-beta'
 ````
 
 #### How to Use
@@ -45,11 +45,22 @@ public class MyReceiver extends WebSocketReceiver {
 ````
 3. call init() :
 
-````java
+```java
  //do this in your BaseApplication or MainActivity
  //Make sure you called this only once
-  new WebSocketAndroidClient.Builder().setUri("ws://192.168.1.1:12345").build(this).init();
+ WebSocketAndroidClient.init(this,"ws://192.168.1.108:9898");
+ WebSocketAndroidClient.getInstance().connect();
 ````
+4. call disconnect:
+
+it will auto reconnect by error or server offline,but when you call disconnect,you need call connect again
+```java
+   WebSocketAndroidClient.getInstance().disConnect();
+```
+5. send message:
+```java
+   WebSocketAndroidClient.getInstance().sendMsg(editText.getText().toString());
+```
 #### Contact  me
 
 if you have any trouble in use this lib ,you can send me an e-mail :leo@leohan.xyz
