@@ -14,6 +14,7 @@ public class BaseApplication extends Application {
         super.onCreate();
         //do this in your BaseApplication or MainActivity
         //Make sure you called this only once
-        new WebSocketAndroidClient.Builder().setUri("ws://192.168.1.1:12345").build(this).init();
+        WebSocketAndroidClient.init(this,"ws://192.168.1.108:9898");
+        WebSocketAndroidClient.getInstance().connect();
     }
 }

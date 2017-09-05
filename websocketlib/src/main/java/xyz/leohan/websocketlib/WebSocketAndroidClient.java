@@ -19,7 +19,7 @@ public class WebSocketAndroidClient {
     private Context mContext;
     private WebSocketService.MyWebSocketServiceBinder binder;
     private String uri;
-
+    private static WebSocketAndroidClient instance;
     public static final String INTENT_WEBSOCKET_MSG = "webSocketMsg";
     private WebSocketConnectionListener mListener = new WebSocketConnectionListener() {
         @Override
@@ -37,26 +37,61 @@ public class WebSocketAndroidClient {
 
         @Override
         public void onClose(int code, String reason, boolean remote) {
-            if (binder != null) {
-                binder.connect();
+            Log.i("onClose", "code:" + code + ",reason:" + reason + "remote:" + remote);
+//            if (binder != null) {
+//                binder.connect();
+//            }
+            if (remote) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (true) {
+                            if (null != binder) {
+//                                if (binder.isConnecting()) {
+//                                    break;
+//                                } else {
+//                                    binder.connect();
+//                                    System.out.println("connecting.....");
+//                                }
+                                System.out.println("in loop");
+                                if (binder.isClosed()) {
+                                    binder.connect();
+                                    System.out.println("connecting.....");
+                                } else {
+                                    break;
+                                }
+                            }
+                            try {
+
+                                Thread.sleep(3000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }).start();
             }
         }
 
         @Override
         public void onError(Exception ex) {
-            Log.i("websocket",ex.getMessage());
+            Log.i("websocket", ex.getMessage());
             if (binder != null) {
                 binder.connect();
             }
         }
     };
 
-    public WebSocketAndroidClient(Builder builder) {
-        mContext = builder.mContext;
-        uri = builder.mUri;
+    private WebSocketAndroidClient(Context context, String uri) {
+        this.mContext = context;
+        this.uri = uri;
     }
 
-    public void init() {
+    /**
+     * 连接
+     */
+    public void connect() {
+
         Intent intent = new Intent(mContext, WebSocketService.class);
         intent.putExtra(INTENT_DATA_URI, uri);
         ServiceConnection connection = new ServiceConnection() {
@@ -75,19 +110,43 @@ public class WebSocketAndroidClient {
         mContext.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
-    public static class Builder {
-        private String mUri;
-        private Context mContext;
-
-        public Builder setUri(String uri) {
-            mUri = uri;
-            return this;
+    /**
+     * 初始化
+     *
+     * @param context 上下文
+     * @param uri     websocket 地址
+     */
+    public static void init(Context context, String uri) {
+        if (null == instance) {
+            synchronized (WebSocketAndroidClient.class) {
+                if (null == instance) {
+                    instance = new WebSocketAndroidClient(context, uri);
+                }
+            }
         }
+    }
 
-        public WebSocketAndroidClient build(Context context) {
-            mContext = context;
-            return new WebSocketAndroidClient(this);
+    /**
+     * 发送数据
+     *
+     * @param msg 消息
+     */
+    public void sendMsg(String msg) {
+        binder.sendMsg(msg);
+    }
+
+    /**
+     * 断开连接
+     */
+    public void disConnect() {
+        binder.close();
+    }
+
+    public static WebSocketAndroidClient getInstance() {
+        if (null == instance) {
+            throw new RuntimeException("WebSocketAndroidClient not init");
         }
+        return instance;
     }
 
 }

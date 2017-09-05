@@ -55,20 +55,43 @@ public class WebSocketService extends Service {
             return isWebSocketConnecting();
         }
 
+        public void sendMsg(String msg) {
+            send(msg);
+        }
+
+        public boolean isClosed() {
+            return isWebSocketClosed();
+        }
     }
 
     private boolean isWebSocketConnecting() {
         return mWebSocketClient.isConnecting();
     }
 
+    private boolean isWebSocketClosed() {
+        return mWebSocketClient.isClosed();
+    }
+
+    private void send(String msg) {
+        mWebSocketClient.send(msg);
+    }
+
     private void connectWebSocket() {
-        if (mThread.isAlive()) {
+        if (null != mThread && mThread.isAlive()) {
             return;
         }
+        if (null != mThread) {
+            mThread.interrupt();
+            mThread = null;
+        }
+        mThread = new Thread(new MyThread());
         mThread.start();
     }
 
-    private Thread mThread = new Thread(new Runnable() {
+    private Thread mThread;
+
+    class MyThread implements Runnable {
+
         @Override
         public void run() {
             if (null == mUri) {
@@ -90,7 +113,30 @@ public class WebSocketService extends Service {
             }
             mWebSocketClient.connect();
         }
-    });
+    }
+//    new Thread(new Runnable() {
+//        @Override
+//        public void run() {
+//            if (null == mUri) {
+//                mListener.onError(new Exception("null uri Excepiton"));
+//                return;
+//            }
+//            URI uri = null;
+//            try {
+//                uri = new URI(mUri);
+//            } catch (URISyntaxException e) {
+//                mListener.onError(new Exception("uri format error:" + uri + "can not be format to java.net.uri"));
+//                return;
+//            }
+//            try {
+//                mWebSocketClient = createClient(uri);
+//            } catch (Exception e) {
+//                mListener.onError(e);
+//                return;
+//            }
+//            mWebSocketClient.connect();
+//        }
+//    });
 
     private void disconnectWebSocket() {
         mWebSocketClient.close();
