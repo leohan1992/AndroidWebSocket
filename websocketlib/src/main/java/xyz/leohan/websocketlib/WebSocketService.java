@@ -11,6 +11,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.channels.NotYetConnectedException;
 
 
 /**
@@ -23,6 +24,7 @@ public class WebSocketService extends Service {
     public static final String INTENT_DATA_URI = "uri";
     private WebSocketConnectionListener mListener;
     private String mUri;
+    public static final int USER_CLOSE_CODE = 1000;
 
     @Override
     public void onCreate() {
@@ -55,8 +57,12 @@ public class WebSocketService extends Service {
             return isWebSocketConnecting();
         }
 
-        public void sendMsg(String msg) {
-            send(msg);
+        public void sendMsg(String msg) throws NotYetConnectedException {
+            try {
+                send(msg);
+            } catch (Exception e) {
+                throw new NotYetConnectedException();
+            }
         }
 
         public boolean isClosed() {
@@ -72,8 +78,12 @@ public class WebSocketService extends Service {
         return mWebSocketClient.isClosed();
     }
 
-    private void send(String msg) {
-        mWebSocketClient.send(msg);
+    private void send(String msg) throws NotYetConnectedException {
+        try {
+            mWebSocketClient.send(msg);
+        } catch (NotYetConnectedException e) {
+            throw new NotYetConnectedException();
+        }
     }
 
     private void connectWebSocket() {
@@ -114,32 +124,9 @@ public class WebSocketService extends Service {
             mWebSocketClient.connect();
         }
     }
-//    new Thread(new Runnable() {
-//        @Override
-//        public void run() {
-//            if (null == mUri) {
-//                mListener.onError(new Exception("null uri Excepiton"));
-//                return;
-//            }
-//            URI uri = null;
-//            try {
-//                uri = new URI(mUri);
-//            } catch (URISyntaxException e) {
-//                mListener.onError(new Exception("uri format error:" + uri + "can not be format to java.net.uri"));
-//                return;
-//            }
-//            try {
-//                mWebSocketClient = createClient(uri);
-//            } catch (Exception e) {
-//                mListener.onError(e);
-//                return;
-//            }
-//            mWebSocketClient.connect();
-//        }
-//    });
 
     private void disconnectWebSocket() {
-        mWebSocketClient.close();
+        mWebSocketClient.close(USER_CLOSE_CODE, "userClose");
     }
 
     private WebSocketClient createClient(URI uri) {

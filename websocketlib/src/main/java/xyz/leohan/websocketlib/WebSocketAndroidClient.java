@@ -9,7 +9,10 @@ import android.util.Log;
 
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.nio.channels.NotYetConnectedException;
+
 import static xyz.leohan.websocketlib.WebSocketService.INTENT_DATA_URI;
+import static xyz.leohan.websocketlib.WebSocketService.USER_CLOSE_CODE;
 
 /**
  * Created by leo on 2017/6/13.
@@ -21,10 +24,18 @@ public class WebSocketAndroidClient {
     private String uri;
     private static WebSocketAndroidClient instance;
     public static final String INTENT_WEBSOCKET_MSG = "webSocketMsg";
+    private onWebSocketOpenListener mOnWebSocketOpenListener;
+
+    public interface onWebSocketOpenListener {
+        void onOpen(ServerHandshake handshakedata);
+    }
+
     private WebSocketConnectionListener mListener = new WebSocketConnectionListener() {
         @Override
         public void onOpen(ServerHandshake handshakedata) {
-
+            if (null != mOnWebSocketOpenListener) {
+                mOnWebSocketOpenListener.onOpen(handshakedata);
+            }
         }
 
         @Override
@@ -38,39 +49,37 @@ public class WebSocketAndroidClient {
         @Override
         public void onClose(int code, String reason, boolean remote) {
             Log.i("onClose", "code:" + code + ",reason:" + reason + "remote:" + remote);
-//            if (binder != null) {
-//                binder.connect();
-//            }
-            if (remote) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (true) {
-                            if (null != binder) {
+            if (code == USER_CLOSE_CODE && reason.equals("userClose")) {
+                return;
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        if (null != binder) {
 //                                if (binder.isConnecting()) {
 //                                    break;
 //                                } else {
 //                                    binder.connect();
 //                                    System.out.println("connecting.....");
 //                                }
-                                System.out.println("in loop");
-                                if (binder.isClosed()) {
-                                    binder.connect();
-                                    System.out.println("connecting.....");
-                                } else {
-                                    break;
-                                }
-                            }
-                            try {
-
-                                Thread.sleep(3000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            System.out.println("in loop");
+                            if (binder.isClosed()) {
+                                binder.connect();
+                                System.out.println("connecting.....");
+                            } else {
+                                break;
                             }
                         }
+                        try {
+
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }).start();
-            }
+                }
+            }).start();
         }
 
         @Override
@@ -90,8 +99,8 @@ public class WebSocketAndroidClient {
     /**
      * 连接
      */
-    public void connect() {
-
+    public void connect(onWebSocketOpenListener listener) {
+        this.mOnWebSocketOpenListener = listener;
         Intent intent = new Intent(mContext, WebSocketService.class);
         intent.putExtra(INTENT_DATA_URI, uri);
         ServiceConnection connection = new ServiceConnection() {
@@ -130,9 +139,14 @@ public class WebSocketAndroidClient {
      * 发送数据
      *
      * @param msg 消息
+     * @throws Exception {@link NotYetConnectedException} 当未连接时抛出异常
      */
-    public void sendMsg(String msg) {
-        binder.sendMsg(msg);
+    public void sendMsg(String msg) throws Exception {
+        try {
+            binder.sendMsg(msg);
+        } catch (NotYetConnectedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
