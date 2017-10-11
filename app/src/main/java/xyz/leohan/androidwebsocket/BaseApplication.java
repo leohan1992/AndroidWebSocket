@@ -16,7 +16,7 @@ public class BaseApplication extends Application {
         super.onCreate();
         //do this in your BaseApplication or MainActivity
         //Make sure you called this only once
-        WebSocketAndroidClient.init(this,"ws://192.168.1.151:9898");
+        WebSocketAndroidClient.init(this,"ws://192.168.1.151:9898",3600);
         WebSocketAndroidClient.getInstance().connect(new WebSocketAndroidClient.onWebSocketOpenListener() {
             @Override
             public void onOpen(ServerHandshake handshakedata) {

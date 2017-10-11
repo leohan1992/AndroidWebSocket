@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
@@ -22,8 +23,10 @@ public class WebSocketService extends Service {
     private MyWebSocketServiceBinder mBinder;
     private WebSocketClient mWebSocketClient;
     public static final String INTENT_DATA_URI = "uri";
+    public static final String INTENT_DATA_TIMEOUT_TIME = "timeoutTime";
     private WebSocketConnectionListener mListener;
     private String mUri;
+    private int mTimeoutTime=0;
     public static final int USER_CLOSE_CODE = 1000;
 
     @Override
@@ -36,7 +39,7 @@ public class WebSocketService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         mUri = intent.getStringExtra(INTENT_DATA_URI);
-//        mWebSocketClient = createClient(URI.create(uri));
+        mTimeoutTime=intent.getIntExtra(INTENT_DATA_TIMEOUT_TIME,0);
         return mBinder;
     }
 
@@ -116,7 +119,7 @@ public class WebSocketService extends Service {
                 return;
             }
             try {
-                mWebSocketClient = createClient(uri);
+                mWebSocketClient = createClient(uri,mTimeoutTime);
             } catch (Exception e) {
                 mListener.onError(e);
                 return;
@@ -129,9 +132,9 @@ public class WebSocketService extends Service {
         mWebSocketClient.close(USER_CLOSE_CODE, "userClose");
     }
 
-    private WebSocketClient createClient(URI uri) {
+    private WebSocketClient createClient(URI uri,int timeoutTime) {
 
-        WebSocketClient client = new WebSocketClient(uri) {
+        WebSocketClient client = new WebSocketClient(uri, new Draft_6455(), null, timeoutTime) {
             @Override
             public void onOpen(ServerHandshake handshakedata) {
                 if (mListener != null) {

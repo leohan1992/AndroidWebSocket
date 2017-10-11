@@ -11,6 +11,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.nio.channels.NotYetConnectedException;
 
+import static xyz.leohan.websocketlib.WebSocketService.INTENT_DATA_TIMEOUT_TIME;
 import static xyz.leohan.websocketlib.WebSocketService.INTENT_DATA_URI;
 import static xyz.leohan.websocketlib.WebSocketService.USER_CLOSE_CODE;
 
@@ -22,6 +23,7 @@ public class WebSocketAndroidClient {
     private Context mContext;
     private WebSocketService.MyWebSocketServiceBinder binder;
     private String uri;
+    private int timeoutTime;
     private static WebSocketAndroidClient instance;
     public static final String INTENT_WEBSOCKET_MSG = "webSocketMsg";
     private onWebSocketOpenListener mOnWebSocketOpenListener;
@@ -91,9 +93,10 @@ public class WebSocketAndroidClient {
         }
     };
 
-    private WebSocketAndroidClient(Context context, String uri) {
+    private WebSocketAndroidClient(Context context, String uri, int timeoutTime) {
         this.mContext = context;
         this.uri = uri;
+        this.timeoutTime = timeoutTime;
     }
 
     /**
@@ -103,6 +106,7 @@ public class WebSocketAndroidClient {
         this.mOnWebSocketOpenListener = listener;
         Intent intent = new Intent(mContext, WebSocketService.class);
         intent.putExtra(INTENT_DATA_URI, uri);
+        intent.putExtra(INTENT_DATA_TIMEOUT_TIME, timeoutTime);
         ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -129,7 +133,24 @@ public class WebSocketAndroidClient {
         if (null == instance) {
             synchronized (WebSocketAndroidClient.class) {
                 if (null == instance) {
-                    instance = new WebSocketAndroidClient(context, uri);
+                    instance = new WebSocketAndroidClient(context, uri, 0);
+                }
+            }
+        }
+    }
+
+    /**
+     * 初始化
+     *
+     * @param context     上下文
+     * @param uri         websocket 地址
+     * @param timeoutTime 超时时间
+     */
+    public static void init(Context context, String uri, int timeoutTime) {
+        if (null == instance) {
+            synchronized (WebSocketAndroidClient.class) {
+                if (null == instance) {
+                    instance = new WebSocketAndroidClient(context, uri, timeoutTime);
                 }
             }
         }

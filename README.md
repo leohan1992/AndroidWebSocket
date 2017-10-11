@@ -9,7 +9,7 @@ Maven
 <dependency>
   <groupId>xyz.leohan</groupId>
   <artifactId>AndroidWebSocket</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.3-beta</version>
   <type>pom</type>
 </dependency>
 ````
@@ -17,7 +17,7 @@ Maven
 Gradle
 
 ````
-compile 'xyz.leohan:AndroidWebSocket:1.1.1-beta'
+compile 'xyz.leohan:AndroidWebSocket:1.1.3-beta'
 ````
 
 #### How to Use
@@ -48,8 +48,14 @@ public class MyReceiver extends WebSocketReceiver {
 ```java
  //do this in your BaseApplication or MainActivity
  //Make sure you called this only once
- WebSocketAndroidClient.init(this,"ws://192.168.1.108:9898");
- WebSocketAndroidClient.getInstance().connect();
+ //WebSocketAndroidClient.init(this,"ws://192.168.1.108:9898");
+ WebSocketAndroidClient.init(this,"ws://192.168.1.108:9898",3600);
+ WebSocketAndroidClient.getInstance().connect(new WebSocketAndroidClient.onWebSocketOpenListener() {
+              @Override
+              public void onOpen(ServerHandshake handshakedata) {
+                 //TODO connected
+              }
+          } );
 ````
 4. call disconnect:
 
@@ -61,6 +67,14 @@ it will auto reconnect by error or server offline,but when you call disconnect,y
 ```java
    WebSocketAndroidClient.getInstance().sendMsg(editText.getText().toString());
 ```
+
+#### History
+* v1.1.3-beta
+    1. add init function. add timeout time param.
+* v1.1.2-beta   
+    1. add connenct listener
+    2. fix disconnect and reconnect bug
+    3. throw NotYetConnectException when send msg
 #### Contact  me
 
 if you have any trouble in use this lib ,you can send me an e-mail :leo@leohan.xyz
