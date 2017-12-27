@@ -171,6 +171,15 @@ public class WebSocketAndroidClient {
     }
 
     /**
+     * 判断是否已连接
+     *
+     * @return 是否已连接
+     */
+    public boolean isConnected() {
+        return binder.isConnecting();
+    }
+
+    /**
      * 断开连接
      */
     public void disConnect() {
