@@ -69,6 +69,10 @@ it will auto reconnect by error or server offline,but when you call disconnect,y
 ```
 
 #### History
+* v1.1.4-beta
+    1.update gradle to 4.1
+    2.update buildTool to 26.0.2
+    3.add isConnected function.
 * v1.1.3-beta
     1. add init function. add timeout time param.
 * v1.1.2-beta   
